@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atividade SQL - Nomes do Brasil</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f0f4ff;
+    --surface: #ffffff;
+    --surface2: #f5f7ff;
+    --border: #dde3f0;
+    --accent: #2563eb;
+    --accent2: #7c3aed;
+    --accent3: #059669;
+    --text: #0f172a;
+    --muted: #94a3b8;
+    --subtle: #64748b;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Soft glow top right */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(124,58,237,0.10) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* Header */
+  .header { margin-bottom: 56px; }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(37,99,235,0.08);
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .header-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #0f172a 20%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    color: var(--subtle);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 500px;
+  }
+
+  /* Student card */
+  .student-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(37,99,235,0.06);
+  }
+
+  .student-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  .student-card label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .student-card input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .student-card input::placeholder { color: var(--muted); }
+  .student-card input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+  }
+
+  /* Section label */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .section-label span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Exercise cards */
+  .exercicio {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    animation: slideUp 0.4s ease both;
+    box-shadow: 0 1px 8px rgba(15,23,42,0.05);
+  }
+
+  .exercicio:hover {
+    border-color: rgba(37,99,235,0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(37,99,235,0.09);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .ex-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px 14px;
+  }
+
+  .ex-num {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    background: rgba(37,99,235,0.07);
+    border: 1.5px solid rgba(37,99,235,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-top: 1px;
+  }
+
+  .ex-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #334155;
+    font-weight: 400;
+  }
+
+  .ex-body { padding: 0 24px 20px; }
+
+  .ex-body label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.5;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+  textarea:focus {
+    border-color: var(--accent3);
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.10);
+    background: #fff;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .footer-hint {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.28);
+  }
+
+  button:hover {
+    opacity: 0.92;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(124,58,237,0.38);
+  }
+
+  button:active { transform: translateY(0); }
+
+  @media (max-width: 600px) {
+    .container { padding: 36px 16px 60px; }
+    .ex-header { padding: 16px 16px 10px; }
+    .ex-body { padding: 0 16px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">BigQuery · SQL</div>
+    <h1>Análise de Nomes<br>no Brasil</h1>
+    <p class="subtitle">Execute cada consulta no BigQuery e registre o resultado encontrado no campo de resposta abaixo.</p>
+  </div>
+
+  <div class="student-card">
+    <label>Nome do aluno</label>
+    <input type="text" id="aluno" placeholder="Digite seu nome completo…">
+  </div>
+
+  <div class="section-label">
+    <span>Exercícios</span>
+  </div>
+
+  <div id="lista"></div>
+
+  <div class="footer">
+    <p class="footer-hint">// Preencha todos os campos antes de exportar</p>
+    <button onclick="gerarCSV()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Baixar respostas em CSV
+    </button>
+  </div>
+
+</div>
+
+<script>
+const exercicios = [
+  "Liste 10 primeiros registros da tabela nomes e quantidade_nascimentos_ate_2010.",
+  "Conte quantas pessoas no Brasil possuem o mesmo nome que você.",
+  "Liste todos os registros do seu nome no Brasil, exiba o nome, a quantidade de registros, agrupada por estado brasileiro, trazendo os que possuem mais ocorrências primeiro.",
+  "Liste todos os nomes registrados no município de Almenara. Traga o nome, o nome da cidade e a quantidade de nomes, trazendo os com maior quantidade primeiro.",
+  "Liste todos os nomes registrados em pelo menos 5 cidades do Vale do Jequitinhonha. Traga o nome, o nome da cidade e a quantidade de nomes, trazendo os com maior quantidade primeiro.",
+  "Liste os 5 nomes mais comuns registrados no estado de MG, em ordem decrescente.",
+  "Liste os 10 nomes mais comuns do Brasil.",
+  "Liste os nomes mais comuns da região Sudeste.",
+  "Some os nascimentos do seu nome agrupando por nome_regiao. Descubra em qual região do Brasil seu nome é mais popular. Exiba a região e o total, ordenando da maior para a menor.",
+  "Encontre todos os municípios do seu estado que possuem total de nascimentos acima da média do estado de MG.",
+  "Qual o percentual do seu nome em relação ao total de nascimentos do Brasil? Calcule quantos nascimentos têm o seu nome e divida pelo total geral de nascimentos de todo o Brasil.",
+  "Descubra em quais municípios o seu nome está entre os 3 nomes mais populares.",
+]
+
+const lista = document.getElementById("lista")
+
+exercicios.forEach((ex, i) => {
+  const num = String(i + 1).padStart(2, '0')
+  const div = document.createElement("div")
+  div.className = "exercicio"
+  div.style.animationDelay = (i * 0.05) + 's'
+  div.innerHTML = `
+    <div class="ex-header">
+      <div class="ex-num">${num}</div>
+      <p class="ex-text">${ex}</p>
+    </div>
+    <div class="ex-body">
+      <label>Sua resposta</label>
+      <textarea id="resp${i}" placeholder="Cole aqui o resultado da consulta SQL…"></textarea>
+    </div>
+  `
+  lista.appendChild(div)
+})
+
+function gerarCSV() {
+  const aluno = document.getElementById("aluno").value.trim() || "sem_nome"
+  const linhas = ["aluno,exercicio,resposta"]
+  exercicios.forEach((ex, i) => {
+    const resp = (document.getElementById("resp" + i).value || "").replace(/,/g, " ").replace(/\n/g, " ")
+    linhas.push(`"${aluno}",${i + 1},"${resp}"`)
+  })
+  const csv = linhas.join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = "respostas_sql.csv"
+  a.click()
+  URL.revokeObjectURL(url)
+}
+</script>
+</body>
+</html>
